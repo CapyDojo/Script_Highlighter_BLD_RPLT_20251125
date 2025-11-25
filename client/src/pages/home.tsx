@@ -10,6 +10,7 @@ import { Download, ArrowLeft, Sparkles } from 'lucide-react';
 import mammoth from 'mammoth';
 import { useToast } from '@/hooks/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
+import { SupportDialog } from '@/components/support-dialog';
 
 export default function Home() {
   const [step, setStep] = useState<'upload' | 'editor'>('upload');
@@ -139,23 +140,27 @@ export default function Home() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/20">
                <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="font-serif text-xl font-bold tracking-tight text-foreground">
+            <h1 className="font-serif text-xl font-bold tracking-tight text-foreground hidden sm:block">
               Script<span className="text-primary">Highlighter</span>
             </h1>
           </div>
-          
-          {step === 'editor' && (
-             <div className="flex items-center gap-3">
-                <Button variant="ghost" size="sm" onClick={() => setStep('upload')} className="text-muted-foreground hover:text-foreground">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Upload New
-                </Button>
-                <Button onClick={handleDownload} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-105">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Script
-                </Button>
-             </div>
-          )}
+
+          <div className="flex items-center gap-3">
+             <SupportDialog />
+             {step === 'editor' && (
+                 <>
+                    <Button variant="ghost" size="sm" onClick={() => setStep('upload')} className="text-muted-foreground hover:text-foreground hidden sm:flex">
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Upload New
+                    </Button>
+                    <Button onClick={handleDownload} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-105">
+                        <Download className="w-4 h-4 mr-2" />
+                        <span className="hidden sm:inline">Download Script</span>
+                        <span className="sm:hidden">Download</span>
+                    </Button>
+                 </>
+             )}
+          </div>
         </div>
       </header>
 
