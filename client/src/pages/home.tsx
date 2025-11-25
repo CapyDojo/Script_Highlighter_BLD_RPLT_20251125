@@ -27,8 +27,9 @@ export default function Home() {
       if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
          // Basic PDF text extraction (might be messy but fits MVP)
          const arrayBuffer = await file.arrayBuffer();
-         // Set worker source - simplified for this env, usually needs CDN or local file
-         pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+         
+         // Use unpkg for the worker source to match version
+         pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
          
          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
          let fullText = '';
