@@ -59,7 +59,9 @@ export function SupportDialog() {
                   )}
                 >
                   {option.value === 25 && (
-                    <div className="text-xs mb-1 animate-bounce">👑</div>
+                    <div className="mb-1 animate-bounce">
+                      <Heart className="w-3 h-3 fill-current" />
+                    </div>
                   )}
                   <span className="text-lg font-bold flex items-center gap-1">
                     ${option.value}
@@ -75,7 +77,7 @@ export function SupportDialog() {
                   : "shadow-primary/20"
               )}
             >
-              {selectedAmount === 25 ? <Star className="w-5 h-5 mr-2 fill-current" /> : <Coffee className="w-5 h-5 mr-2" />}
+              {selectedAmount === 25 ? <Heart className="w-5 h-5 mr-2 fill-current" /> : <Coffee className="w-5 h-5 mr-2" />}
               Donate ${selectedAmount}
             </Button>
           </div>
