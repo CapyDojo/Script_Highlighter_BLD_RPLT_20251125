@@ -67,8 +67,15 @@ export function SupportDialog() {
                 </button>
               ))}
             </div>
-            <Button className="w-full py-6 text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
-              <Coffee className="w-5 h-5 mr-2" />
+            <Button
+              className={cn(
+                "w-full py-6 text-lg shadow-lg hover:scale-[1.02] transition-transform",
+                selectedAmount === 25 
+                  ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-amber-500/25 border-0" 
+                  : "shadow-primary/20"
+              )}
+            >
+              {selectedAmount === 25 ? <Star className="w-5 h-5 mr-2 fill-current" /> : <Coffee className="w-5 h-5 mr-2" />}
               Donate ${selectedAmount}
             </Button>
           </div>
