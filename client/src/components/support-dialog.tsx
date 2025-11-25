@@ -77,7 +77,7 @@ export function SupportDialog() {
                   : "shadow-primary/20"
               )}
             >
-              {selectedAmount === 25 ? <Heart className="w-5 h-5 mr-2 fill-current" /> : <Coffee className="w-5 h-5 mr-2" />}
+              {selectedAmount === 25 ? <Heart className="w-5 h-5 mr-2 fill-current animate-bounce" /> : <Coffee className="w-5 h-5 mr-2" />}
               Donate ${selectedAmount}
             </Button>
           </div>
