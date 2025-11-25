@@ -1,0 +1,232 @@
+# Script Character Highlighter - Build Specification Outline
+
+## Product Overview
+
+Build a HTML application that allows users to upload screenplay/script files (`.docx` and .pdf format) and automatically highlight character dialogue with customizable colors. The tool must parse screenplay formatting, extract character names, and apply Word document highlighting that can be downloaded.
+
+**Target Users**: Screenwriters, script supervisors, actors, and production assistants who need to track and highlight specific character dialogue in scripts.
+
+**Core Value Proposition**: Automatically parse screenplay structure, identify all speaking characters with line counts, allow multi-character selection with color customization, and export highlighted scripts maintaining original formatting.
+
+---
+
+## Complete Feature List
+
+### 1. File Upload
+
+- Drag-and-drop zone
+- Click to upload
+- .docx validation
+- Visual feedback
+- Display filename
+
+### 2. Screenplay Parser
+
+- Auto-detect margins
+- Identify scene headings, action, character names, dialogue, parentheticals
+- Statistical indentation analysis
+- Return structured data array
+
+### 3. Character Detection
+
+- Extract from parsed lines
+- Count dialogue lines per character
+- Sort alphabetically
+- Auto-assign colors
+
+### 4. UI View Modes
+
+- Pills view (grid of cards)
+- Table view (data table)
+- Toggle between modes
+- Save preference
+
+### 5. Selection & Filtering
+
+- Search by name
+- Select/deselect individual
+- Select all / Clear all
+- Visual selection state
+
+### 6. Color Customization
+
+- 12-color palette
+- Pills: click dot → modal picker
+- Table: dropdown selector
+- Save per-character preferences
+- Conflict detection/warning
+
+### 7. Document Processing
+
+- Parse with ScreenplayParser
+- Apply highlights to selected characters
+- Serialize back to DOCX
+- Download with descriptive filename
+
+---
+
+## Color Palette (12 Colors)
+
+```javascript
+const COLOR_PALETTE = [
+  { name: 'yellow', value: 'yellow', hex: '#fef08a' },
+  { name: 'green', value: 'green', hex: '#86efac' },
+  { name: 'cyan', value: 'cyan', hex: '#67e8f9' },
+  { name: 'magenta', value: 'magenta', hex: '#f0abfc' },
+  { name: 'lightGray', value: 'lightGray', hex: '#d1d5db' },
+  { name: 'red', value: 'red', hex: '#fca5a5' },
+  { name: 'blue', value: 'blue', hex: '#93c5fd' },
+  { name: 'darkGreen', value: 'darkGreen', hex: '#6ee7b7' },
+  { name: 'darkYellow', value: 'darkYellow', hex: '#fde047' },
+  { name: 'darkRed', value: 'darkRed', hex: '#f87171' },
+  { name: 'darkBlue', value: 'darkBlue', hex: '#60a5fa' },
+  { name: 'darkCyan', value: 'darkCyan', hex: '#22d3ee' }
+];
+```
+
+---
+
+##
+
+## UI Design System
+
+### Colors
+
+```css
+--bg-primary: #0a0a0a;
+--bg-card: #1a1a1a;
+--accent-gold: #d4af37;
+--text-primary: #e5e7eb;
+--text-secondary: #a8a8a8;
+--border-gold: rgba(212, 175, 55, 0.2);
+```
+
+### Typography
+
+- **Display**: 'Playfair Display', Georgia, serif
+- **Body**: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif
+- **Monospace**: Consolas, Monaco, monospace
+
+### Spacing
+
+- 0.25rem, 0.5rem, 0.75rem, 1rem, 1.5rem, 2rem, 3rem
+
+### Effects
+
+- Border radius: 0.5rem (button), 0.75rem (card), 1rem (modal)
+- Transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+- Shadow: Layered box-shadow for depth
+- Backdrop blur: blur(10px) for glassmorphism
+
+---
+
+## Required CSS Classes
+
+### Layout
+
+- `.container` - max-width 900px, centered, padding
+- `.card` - main content card, glass effect
+
+### Components
+
+- `.dropzone` - upload area
+- `.dropzone.drag-over` - drag state
+- `.form-group` - form field wrapper
+- `.ui-toggle` - view mode switcher
+- `.search-actions` - search + buttons row
+- `.character-pills` - grid layout
+- `.character-pill` - individual pill
+- `.character-pill.selected` - selected state
+- `.pill-name`, `.pill-count`, `.pill-color`
+- `.character-table` - table layout
+- `.color-swatch` - color preview dot
+- `.color-select` - dropdown
+- `.selection-summary` - selected chars display
+- `.summary-text`, `.summary-badge`
+- `.color-warning` - conflict warning banner
+- `.status`, `.status.error`, `.status.success`
+- `.instructions` - how-to section
+- `.color-picker-overlay` - modal background
+- `.color-picker-popup` - color picker modal
+- `.color-grid` - 4-column color grid
+- `.color-option` - individual swatch
+- `.color-option.selected` - selected swatch
+- `.primary` - primary button
+- `.action-btn` - secondary button
+
+---
+
+##---
+
+## Testing Checklist
+
+### File Upload
+
+- [ ] Drag .docx / .pdf / .txt→ Uploads
+- [ ] Click upload → Opens file picker
+- [ ] Upload non-supported filetypes → Shows error
+- [ ] Display filename after upload
+
+##
+
+### UI Interactions
+
+- [ ] Toggle Pills/Table → Switches view
+- [ ] View preference persists on reload
+- [ ] Search filters characters
+- [ ] Select All → All selected
+- [ ] Clear All → All deselected
+- [ ] Click pill → Toggles selection
+- [ ] Click color dot → Opens modal
+- [ ] Change dropdown → Updates color
+
+### Highlighting
+
+- [ ] Select 1 char, highlight → Correct
+- [ ] Select multiple → All highlighted correctly
+- [ ] Download → File name correct
+- [ ] Downloaded file opens in Word
+- [ ] Colors match selections
+
+### Edge Cases
+
+- [ ] No characters selected → Error message
+- [ ] Duplicate colors → Shows warning
+- [ ] Very long character list → Scrollable
+- [ ] Refresh → Restores colors and view mode
+
+---
+
+## Success Criteria
+
+**Must Work:**
+
+- Upload .docx / .pdf / .txt files
+- Parse character names and counts
+- Display in Pills or Table view
+- Search/filter characters
+- Select characters
+- Assign colors (dropdown or modal)
+- Highlight dialogue in preview panel / modal
+- Ability to download highlighted script in DOCX / PDF
+- Download modified file
+- Remember preferences
+
+**Must Look:**
+
+- Professional dark gold theme
+- Smooth transitions
+- Responsive layout
+- Clear visual hierarchy
+
+**Must Handle:**
+
+- Invalid file types
+- Parse errors
+- Zero characters
+- Color conflicts
+- Long character lists
+
+---
+
+**END OF SPECIFICATION**
