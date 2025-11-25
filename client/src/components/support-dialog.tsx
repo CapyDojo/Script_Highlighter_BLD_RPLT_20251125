@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Heart, Coffee, Share2, Check } from "lucide-react";
+import { Heart, Coffee, Share2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function SupportDialog() {
@@ -41,8 +41,9 @@ export function SupportDialog() {
         </DialogHeader>
         
         <div className="grid gap-6 py-4">
+          {/* One-time Donation Section */}
           <div className="space-y-3">
-            <div className="text-sm font-medium text-muted-foreground">Select contribution amount</div>
+            <div className="text-sm font-medium text-muted-foreground">One-time donation</div>
             <div className="grid grid-cols-4 gap-2">
               {amounts.map((option) => (
                 <button
@@ -59,22 +60,41 @@ export function SupportDialog() {
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="grid gap-3">
             <Button className="w-full py-6 text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
               <Coffee className="w-5 h-5 mr-2" />
               Donate ${selectedAmount}
             </Button>
+          </div>
 
-            <Button variant="outline" className="w-full gap-2 border-dashed">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
+            </div>
+          </div>
+
+          {/* Other Support Options */}
+          <div className="grid gap-3">
+            <Button variant="outline" className="h-auto p-4 justify-start gap-4 hover:bg-primary/5 hover:border-primary/30 transition-all group">
+              <div className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Star className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <div className="font-semibold">GitHub Sponsor</div>
+                <div className="text-sm text-muted-foreground">Monthly recurring support</div>
+              </div>
+            </Button>
+
+            <Button variant="ghost" className="w-full gap-2 text-muted-foreground hover:text-foreground">
               <Share2 className="w-4 h-4" />
-              Share with friends instead
+              Share with friends
             </Button>
           </div>
           
           <p className="text-xs text-center text-muted-foreground">
-            Payments are securely processed by Stripe.
+            Payments are securely processed by Stripe & GitHub.
           </p>
         </div>
       </DialogContent>
