@@ -111,7 +111,7 @@ export function SupportDialog() {
               </div>
               <div className="text-left">
                 <div className="font-semibold">Patreon</div>
-                <div className="text-xs text-muted-foreground">Get exclusive updates & perks</div>
+                <div className="text-xs text-muted-foreground">Monthly recurring support</div>
               </div>
             </Button>
 
@@ -121,7 +121,7 @@ export function SupportDialog() {
               </div>
               <div className="text-left">
                 <div className="font-semibold">Ko-fi</div>
-                <div className="text-xs text-muted-foreground">Monthly gold membership</div>
+                <div className="text-xs text-muted-foreground">Support the project</div>
               </div>
             </Button>
           </div>
