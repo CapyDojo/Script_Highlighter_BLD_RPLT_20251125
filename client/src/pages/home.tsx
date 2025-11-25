@@ -37,7 +37,36 @@ export default function Home() {
          for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const content = await page.getTextContent();
-            const pageText = content.items.map((item: any) => item.str).join('\n');
+            
+            // Improved PDF text extraction
+            // Group items by Y position (lines)
+            // content.items has 'transform' [scaleX, skewY, skewX, scaleY, x, y]
+            // We sort by Y (descending) then X (ascending)
+            
+            const items = content.items as any[];
+            if (items.length === 0) continue;
+            
+            // Sort items top-to-bottom, left-to-right
+            // Note: PDF Y coordinates start from bottom-left usually, so higher Y is higher on page.
+            items.sort((a, b) => {
+                const yDiff = b.transform[5] - a.transform[5];
+                if (Math.abs(yDiff) > 5) return yDiff; // Significant Y difference
+                return a.transform[4] - b.transform[4]; // Sort by X
+            });
+
+            let pageText = '';
+            let lastY = items[0].transform[5];
+
+            for (const item of items) {
+                const y = item.transform[5];
+                // If Y changed significantly, add newline
+                if (Math.abs(y - lastY) > 5) {
+                    pageText += '\n';
+                    lastY = y;
+                }
+                pageText += item.str;
+            }
+            
             fullText += pageText + '\n';
          }
          text = fullText;

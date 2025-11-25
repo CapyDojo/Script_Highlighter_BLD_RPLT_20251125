@@ -46,9 +46,18 @@ export function parseScript(text: string): ScriptElement[] {
     const isAllUpper = cleanLine === cleanLine.toUpperCase() && cleanLine.length > 1 && /[A-Z]/.test(cleanLine);
     const isTransition = /^(CUT TO:|FADE|DISSOLVE|SMASH CUT)/.test(cleanLine);
     
-    if (isAllUpper && !isTransition) {
+    // Heuristic for Play Script / Transcript format: "Name:" (e.g. "Jenny:", "Alan:")
+    // It must end with a colon, have at least one letter, and be relatively short (< 40 chars).
+    // It does NOT need to be all uppercase.
+    const isColonName = /^[A-Za-z\s]+:$/.test(cleanLine) && cleanLine.length < 40 && cleanLine.length > 2;
+
+    if ((isAllUpper || isColonName) && !isTransition) {
       // This is likely a character
-      lastCharacter = cleanLine.replace(/\s*\(CONT'D\)$/, '').trim(); // Clean (CONT'D)
+      let charName = cleanLine.replace(/\s*\(CONT'D\)$/, '').trim(); // Clean (CONT'D)
+      if (isColonName) {
+          charName = charName.replace(/:$/, ''); // Remove colon for stats
+      }
+      lastCharacter = charName;
       elements.push({ id, type: 'character', content: cleanLine, originalLine: index });
       lastType = 'character';
       return;
@@ -100,6 +109,52 @@ export function parseScript(text: string): ScriptElement[] {
     lastCharacter = '';
   });
 
+  // Post-processing: Validate characters
+  // A Character element MUST be followed by Dialogue or Parenthetical.
+  // If it is followed by Action, Scene, or another Character (without dialogue in between), it was likely a false positive (e.g. Title).
+  // However, we need to be careful about "dual dialogue" or strange formatting.
+  // But generally: Character -> Dialogue is the rule.
+  
+  // We iterate and check.
+  for (let i = 0; i < elements.length; i++) {
+      if (elements[i].type === 'character') {
+          let nextIndex = i + 1;
+          // Skip parentheticals to find dialogue
+          let hasDialogue = false;
+          
+          while (nextIndex < elements.length) {
+             const nextType = elements[nextIndex].type;
+             if (nextType === 'parenthetical') {
+                 nextIndex++;
+                 continue;
+             }
+             if (nextType === 'dialogue') {
+                 hasDialogue = true;
+                 break;
+             }
+             // If we hit anything else (Action, Scene, Transition, or another Character), then this character has no dialogue.
+             break;
+          }
+
+          if (!hasDialogue) {
+              // Reclassify as Action (or Scene if it looks like one, but we already checked Scene)
+              elements[i].type = 'action';
+              // Also need to clear 'character' property from any subsequent lines that might have been falsely attributed (though our parser logic above attributes based on lastType, so if we change this to action, the *next* lines were already parsed as Action probably, unless they were parsed as Dialogue because of this character).
+              // Wait, if we reclassify this as Action, then the *next* lines which were parsed as 'Dialogue' (because lastType was character) should ALSO be reclassified as Action.
+              
+              // Let's fix the subsequent dialogue lines if they exist (which they shouldn't if hasDialogue is false, but wait...)
+              // If hasDialogue is FALSE, it means the next element is NOT dialogue.
+              // So we don't need to fix subsequent lines, because they aren't dialogue.
+              // EXCEPT: if the parser was greedy and marked the next lines as dialogue?
+              // In our main loop:
+              // if (lastType === 'character') -> next line is 'dialogue'.
+              // So if the next line IS 'dialogue', then hasDialogue would be TRUE.
+              // So if hasDialogue is FALSE, it means the next line was ALREADY parsed as something else (Action, Scene, etc).
+              // So we are safe just changing this element.
+          }
+      }
+  }
+
   return elements;
 }
 
@@ -110,9 +165,14 @@ export function extractCharacters(elements: ScriptElement[]): CharacterStats[] {
     if (el.type === 'character') {
       // Clean up character name (remove (V.O.), (O.S.), etc for grouping)
       const rawName = el.content;
-      const cleanName = rawName
+      // Also remove trailing colon if present (for "Jenny:" case)
+      let cleanName = rawName
         .replace(/\s*\((V\.O\.|O\.S\.|CONT'D)\)/g, '')
         .trim();
+        
+      if (cleanName.endsWith(':')) {
+          cleanName = cleanName.slice(0, -1).trim();
+      }
       
       if (cleanName) {
         statsMap.set(cleanName, (statsMap.get(cleanName) || 0) + 1);
