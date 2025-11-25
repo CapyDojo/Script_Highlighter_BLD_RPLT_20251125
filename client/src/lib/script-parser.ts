@@ -1,5 +1,20 @@
 import { ScriptElement, CharacterStats, COLOR_PALETTE } from './constants';
 
+function normalizeCharacterName(rawName: string): string {
+  let name = rawName.trim();
+  // Remove common screenplay extensions in parentheses
+  // Covers (V.O.), (O.S.), (CONT'D), (CONT’D), (on phone), etc.
+  // We replace any parenthetical at the end of the string if it looks like a modifier
+  // Standard modifiers often used: V.O., O.S., CONT'D, CONTINUED, PRE-LAP, INTO DEVICE, ON PHONE, FILTERED
+  // Simple heuristic: any parenthetical at the end of the line.
+  name = name.replace(/\s*\([^)]+\)$/, '');
+  
+  // Remove trailing colon (for transcript style)
+  name = name.replace(/:$/, '');
+  
+  return name.trim();
+}
+
 export function parseScript(text: string): ScriptElement[] {
   const lines = text.split(/\r?\n/);
   const elements: ScriptElement[] = [];
@@ -34,7 +49,7 @@ export function parseScript(text: string): ScriptElement[] {
         id, 
         type: 'parenthetical', 
         content: cleanLine, 
-        originalLine: index,
+        originalLine: index, 
         character: lastCharacter 
       });
       lastType = 'parenthetical';
@@ -53,10 +68,7 @@ export function parseScript(text: string): ScriptElement[] {
 
     if ((isAllUpper || isColonName) && !isTransition) {
       // This is likely a character
-      let charName = cleanLine.replace(/\s*\(CONT'D\)$/, '').trim(); // Clean (CONT'D)
-      if (isColonName) {
-          charName = charName.replace(/:$/, ''); // Remove colon for stats
-      }
+      const charName = normalizeCharacterName(cleanLine);
       lastCharacter = charName;
       elements.push({ id, type: 'character', content: cleanLine, originalLine: index });
       lastType = 'character';
@@ -80,13 +92,6 @@ export function parseScript(text: string): ScriptElement[] {
         originalLine: index, 
         character: lastCharacter 
       });
-      // We stay in dialogue mode implicitly, but next line logic handles it
-      // Actually, strict screenplay format: Dialogue blocks continue until double newline.
-      // But here we are line-by-line.
-      // If we are in dialogue flow, subsequent lines might be dialogue too?
-      // For simple parser, let's assume dialogue is one block or we treat subsequent lines as action if they break flow?
-      // No, dialogue can be multi-line. 
-      // But standard parsers usually treat next non-empty line as dialogue if previous was dialogue.
       lastType = 'dialogue';
       return;
     }
@@ -112,10 +117,6 @@ export function parseScript(text: string): ScriptElement[] {
   // Post-processing: Validate characters
   // A Character element MUST be followed by Dialogue or Parenthetical.
   // If it is followed by Action, Scene, or another Character (without dialogue in between), it was likely a false positive (e.g. Title).
-  // However, we need to be careful about "dual dialogue" or strange formatting.
-  // But generally: Character -> Dialogue is the rule.
-  
-  // We iterate and check.
   for (let i = 0; i < elements.length; i++) {
       if (elements[i].type === 'character') {
           let nextIndex = i + 1;
@@ -137,20 +138,8 @@ export function parseScript(text: string): ScriptElement[] {
           }
 
           if (!hasDialogue) {
-              // Reclassify as Action (or Scene if it looks like one, but we already checked Scene)
+              // Reclassify as Action
               elements[i].type = 'action';
-              // Also need to clear 'character' property from any subsequent lines that might have been falsely attributed (though our parser logic above attributes based on lastType, so if we change this to action, the *next* lines were already parsed as Action probably, unless they were parsed as Dialogue because of this character).
-              // Wait, if we reclassify this as Action, then the *next* lines which were parsed as 'Dialogue' (because lastType was character) should ALSO be reclassified as Action.
-              
-              // Let's fix the subsequent dialogue lines if they exist (which they shouldn't if hasDialogue is false, but wait...)
-              // If hasDialogue is FALSE, it means the next element is NOT dialogue.
-              // So we don't need to fix subsequent lines, because they aren't dialogue.
-              // EXCEPT: if the parser was greedy and marked the next lines as dialogue?
-              // In our main loop:
-              // if (lastType === 'character') -> next line is 'dialogue'.
-              // So if the next line IS 'dialogue', then hasDialogue would be TRUE.
-              // So if hasDialogue is FALSE, it means the next line was ALREADY parsed as something else (Action, Scene, etc).
-              // So we are safe just changing this element.
           }
       }
   }
@@ -163,16 +152,7 @@ export function extractCharacters(elements: ScriptElement[]): CharacterStats[] {
 
   elements.forEach(el => {
     if (el.type === 'character') {
-      // Clean up character name (remove (V.O.), (O.S.), etc for grouping)
-      const rawName = el.content;
-      // Also remove trailing colon if present (for "Jenny:" case)
-      let cleanName = rawName
-        .replace(/\s*\((V\.O\.|O\.S\.|CONT'D)\)/g, '')
-        .trim();
-        
-      if (cleanName.endsWith(':')) {
-          cleanName = cleanName.slice(0, -1).trim();
-      }
+      const cleanName = normalizeCharacterName(el.content);
       
       if (cleanName) {
         statsMap.set(cleanName, (statsMap.get(cleanName) || 0) + 1);
