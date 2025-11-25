@@ -160,15 +160,15 @@ export default function Home() {
              </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-8rem)]">
-            {/* Left Panel: Controls */}
-            <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 h-full overflow-hidden">
+          <div className="flex flex-col gap-8 pb-20">
+            {/* Top Section: Controls */}
+            <div className="flex flex-col gap-6">
                 <div className="flex-none">
                     <h2 className="font-serif text-2xl font-bold mb-1">Characters</h2>
                     <p className="text-muted-foreground text-sm">Select characters to highlight dialogue.</p>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto pr-2 -mr-2 pb-10">
+                <div className="w-full">
                     <CharacterList 
                         characters={characters} 
                         onToggle={toggleCharacter}
@@ -178,8 +178,12 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Right Panel: Preview */}
-            <div className="lg:col-span-7 xl:col-span-8 h-full hidden lg:block animate-in slide-in-from-right-8 duration-700">
+            {/* Bottom Section: Preview */}
+            <div className="w-full h-[800px] animate-in slide-in-from-bottom-8 duration-700 border-t border-border/40 pt-8">
+               <div className="flex items-center justify-between mb-4">
+                   <h2 className="font-serif text-2xl font-bold">Script Preview</h2>
+                   <span className="text-sm text-muted-foreground">Scroll to preview highlights</span>
+               </div>
                <ScriptPreview elements={scriptElements} characters={characters} />
             </div>
           </div>
