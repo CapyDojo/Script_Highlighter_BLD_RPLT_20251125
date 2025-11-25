@@ -50,16 +50,16 @@ export function SupportDialog() {
                   key={option.value}
                   onClick={() => setSelectedAmount(option.value)}
                   className={cn(
-                    "flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 relative overflow-hidden",
+                    "flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 relative overflow-visible",
                     selectedAmount === option.value
                       ? "border-primary bg-primary/5 text-primary"
                       : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground",
-                    option.value === 25 && selectedAmount !== 25 && "border-amber-200/50 bg-amber-50/30 hover:bg-amber-100/50 hover:border-amber-300/50",
-                    option.value === 25 && selectedAmount === 25 && "border-amber-500 bg-amber-100/20 text-amber-600 ring-2 ring-amber-500/20 ring-offset-2"
+                    option.value === 25 && selectedAmount !== 25 && "text-amber-500/80 hover:text-amber-600",
+                    option.value === 25 && selectedAmount === 25 && "border-amber-500 text-amber-600 bg-amber-500/10"
                   )}
                 >
                   {option.value === 25 && (
-                    <div className="absolute -top-1 -right-1 text-xs animate-bounce">👑</div>
+                    <div className="text-xs mb-1 animate-bounce">👑</div>
                   )}
                   <span className="text-lg font-bold flex items-center gap-1">
                     ${option.value}
